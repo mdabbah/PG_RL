@@ -104,7 +104,7 @@ class PGAgent(nn.Module):
         :return: returns true if the agent should explore
         """
         explore = Categorical(torch.tensor([1 - self.explor_factor, self.explor_factor])).sample()
-        return explore == 1
+        return False  # explore == 1
 
     def random_action(self):
         """
@@ -144,7 +144,7 @@ class PGAgent(nn.Module):
         eps = np.finfo(np.float32).eps.item()
         rewards = (rewards - rewards.mean()) / (rewards.std() + eps)
         for log_prob, reward, v_s in zip(self.saved_log_probs, rewards, self.save_value_function):
-            advantage = reward - v_s
+            advantage = reward - v_s.item()
             policy_loss.append(-log_prob * advantage)
             value_losses.append(F.smooth_l1_loss(v_s.squeeze(), reward).expand(policy_loss[0].shape))
 
